@@ -1,5 +1,4 @@
 name: content-api
-
 # This workflow is triggered on push to the 'content-web' directory of the  main branch of the repository
 on:
   push:
@@ -7,12 +6,11 @@ on:
     - main
     paths:
     - 'content-api/**'
-    - api.deployment.yml  
-    - api.service.yml     
+    - api.deployment.yml
+    - api.service.yml
 
   # Configure workflow to also support triggering manually
   workflow_dispatch:
-
 # Environment variables are defined so that they can be used throughout the job definitions.
 env:
   imageRepository: 'content-api'
@@ -22,17 +20,14 @@ env:
   containerRegistry: 'fabmedical581238.azurecr.io'
   dockerfilePath: './content-api'
   tag: '${{ github.run_id  }}'
-
 # Jobs define the actions that take place when code is pushed to the main branch
 jobs:
-
   build-and-publish-docker-image:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:
     # Checkout the repo
     - uses: actions/checkout@master
-
     - name: Build and push an image to container registry
       uses: docker/build-push-action@v1
       with:
@@ -44,20 +39,20 @@ jobs:
         repository: ${{ env.imageRepository }}
         tags: ${{ env.tag }},latest
 
-    - uses: Azure/aks-set-context@v1
-      with:
-        creds: '${{ secrets.AZURE_CREDENTIALS }}'
-        cluster-name: '${{ env.clusterName }}'
-        resource-group: '${{ env.resourceGroupName }}'
-          
-    - name: Deploy to AKS
-      uses: azure/k8s-deploy@v1
-      with:
-        manifests: |
-          api.deployment.yml
-          api.service.yml
-        images: |
-          ${{ env.containerRegistry }}/${{ env.imageRepository }}:${{ env.tag }}
-        imagepullsecrets: |
-          ingress-demo-secret
-        namespace: ingress-demo
+     - uses: Azure/aks-set-context@v1
+       with:
+         creds: '${{ secrets.AZURE_CREDENTIALS }}'
+         cluster-name: '${{ env.clusterName }}'
+         resource-group: '${{ env.resourceGroupName }}'
+
+     - name: Deploy to AKS
+       uses: azure/k8s-deploy@v1
+       with:
+         manifests: |
+           api.deployment.yml
+           api.service.yml
+         images: |
+           ${{ env.containerRegistry }}.azurecr.io/${{ env.imageRepository }}:${{ env.tag }}
+         imagepullsecrets: |
+           ingress-demo-secret
+         namespace: ingress-demo
