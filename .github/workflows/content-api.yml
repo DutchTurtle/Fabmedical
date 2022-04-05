@@ -60,4 +60,4 @@ jobs:
           ${{ env.containerRegistry }}/${{ env.imageRepository }}:${{ env.tag }}
         imagepullsecrets: |
           ingress-demo-secret
-        namespace: ingress-demo
+        namespace: ingress-demo 
